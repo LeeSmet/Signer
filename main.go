@@ -149,7 +149,9 @@ func main() {
 
 func basicValidation(txn *txnbuild.Transaction) error {
 	if _, ok := txn.Memo().(txnbuild.MemoHash); !ok {
-		return errors.New("memo must be of type memo_hash")
+		if _, ok = txn.Memo().(txnbuild.MemoReturn); !ok {
+			return errors.New("memo must be of type memo_hash or memo_return")
+		}
 	}
 	if len(txn.Operations()) != 1 {
 		return errors.New("transaction must contain a single operation")
