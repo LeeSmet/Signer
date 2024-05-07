@@ -163,7 +163,15 @@ func basicValidation(txn *txnbuild.Transaction) error {
 }
 
 func previewTxn(txn *txnbuild.Transaction) {
-	rawMemo := txn.Memo().(txnbuild.MemoHash)
+	var rawMemo [32]byte
+	var ok bool
+	rawMemo, ok = txn.Memo().(txnbuild.MemoHash)
+	if !ok {
+		rawMemo, ok = txn.Memo().(txnbuild.MemoReturn)
+	}
+	if !ok {
+		panic("memo is not of type MemoHash or MemoReturn")
+	}
 	memo := hex.EncodeToString(rawMemo[:])
 	sequence := txn.SequenceNumber()
 	paymentOp := txn.Operations()[0].(*txnbuild.Payment)
